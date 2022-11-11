@@ -5,7 +5,7 @@ def main():
     
     s = socket.socket()
 
-    port = 12345678
+    port = 123456789
 
     s.bind(('', port))
     print ("socket bound to %s" %(port))
