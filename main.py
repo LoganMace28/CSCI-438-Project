@@ -26,12 +26,12 @@ def main():
         c.send('Thank you for connecting')
         c.close()
 #create update portInfo function
-def updatePortInfo(nodeInfo, portInfo):
-    #Update the portInfo map with new port information
+def updateNodeInfo(nodeInfo, portInfo):
+    #Update the node(s) that current node can connect to
     return portInfo
 
 
-def scanPorts(portINfo):
+def scanPorts(portInfo):
     #Look at all available ports and see if any have changed
     return True
 
