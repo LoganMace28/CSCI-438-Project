@@ -27,9 +27,11 @@ def main():
         c.close()
 #create update portInfo function
 def updatePortInfo(nodeInfo, portInfo):
+    #Update the portInfo map with new port information
     return portInfo
 
 
 def scanPorts(portINfo):
+    #Look at all available ports and see if any have changed
     return True
 
