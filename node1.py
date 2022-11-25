@@ -5,11 +5,11 @@ import threading
 def main():
     s = socket.socket()
 
-    port = 10001
+    port = 100001
 
     nodeInfo = {"1", "u-02.sm201.iuk.edu",port, "2", "3", "1000"} 
 
-    portInfo = {"1": 10001, "2": 10002, "3": 10003, "4": 10004}
+    portInfo = {"1": 100001, "2": 100002, "3": 100003, "4": 100004}
 
     s.bind(('', port))
     print ("socket bound to %s" %(port))
