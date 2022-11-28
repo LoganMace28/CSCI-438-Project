@@ -1,7 +1,7 @@
 import socket
 import threading
 import graph
-
+import time
 
 #create main function
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -27,15 +27,40 @@ print ("socket bound to %s" %(port))
 def receive():
 	while True:
 		c, addr = s.recvfrom(1024)
-		print(c)
+		message = c.decode()
+		message = message.split("|")
+		if (message[1] != "Ack"):
+			print(message[1])
+			sendAck(message)
+			time.sleep(1)
+		break
+
 def send():
 	while True:
 		print("To send a message, input which node you want to send to: ")
 		receivingNode = input()
 		print("Thanks, now enter your message: ")
-		message = "From node 2: " + input()
-		s.sendto(message.encode('ascii'), ('127.0.0.1', portInfo[receivingNode]))
+		message = "2| " + input()
+		s.sendto(message.encode(), ('127.0.0.1', portInfo[receivingNode]))
+		x = 0
+		while receiveAck() and x < 5:
+			x+=1
+			print("Ack not received, trying again")
+			s.sendto(message.encode(), ('127.0.0.1', portInfo[receivingNode]))
 
+def sendAck(c):
+		s.sendto("2| Ack".encode(), ('127.0.0.1',portInfo[c[0]]))
+
+def receiveAck():
+	c, addr = s.recvfrom(1024)
+	message = c.decode()
+	message = message.split("|")
+	if (message[1] == "Ack"):
+		print("Received ack")
+		return False
+	else: 
+		return True
+		
 recieveThread = threading.Thread(target=receive)
 recieveThread.start()
 sendThread = threading.Thread(target=send)

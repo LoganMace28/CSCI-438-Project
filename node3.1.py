@@ -27,14 +27,32 @@ print ("socket bound to %s" %(port))
 def receive():
 	while True:
 		c, addr = s.recvfrom(1024)
-		print(c)
+		message = c.split("|")
+		mes = str(c)
+		message = mes.split("|")
+		print(message[1])
+		RackThread = threading.Thread(target=sendAck, args=(message,))
+		RackThread.start()
 def send():
 	while True:
 		print("To send a message, input which node you want to send to: ")
 		receivingNode = input()
 		print("Thanks, now enter your message: ")
-		message = "From node 3: " + input()
+		message = "3| " + input()
 		s.sendto(message.encode('ascii'), ('127.0.0.1', portInfo[receivingNode]))
+		SackThread = threading.Thread(target=receiveAck)
+		SackThread.start()
+def sendAck(c):
+		s.sendto("3| Ack".encode('ascii'), ('127.0.0.1',portInfo[c[0]]))
+
+def receiveAck():
+	while True:
+		c, addr = s.recvfrom(1024)
+		message = c.split("|")
+		if (message[1] == "Ack"):
+			print("Received ack")
+		else: 
+			print("no ack received")
 
 recieveThread = threading.Thread(target=receive)
 recieveThread.start()
