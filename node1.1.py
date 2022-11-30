@@ -30,10 +30,13 @@ def receive():
 		c, addr = s.recvfrom(1024)
 		message = c.decode()
 		message = message.split("|")
-		if (message[1] != "Ack"):
-			print(message[1])
+		if message[2] != "Ack":
 			sendAck(message)
 			time.sleep(1)
+			if message[1] == "1":
+				print(message[2])
+			else:
+				forward(message)
 		break
 
 def send():
@@ -41,7 +44,7 @@ def send():
 		print("To send a message, input which node you want to send to: ")
 		receivingNode = input()
 		print("Thanks, now enter your message: ")
-		message = "1| " + input()
+		message = "1|" + receivingNode + "|" + input()
 		s.sendto(message.encode(), ('127.0.0.1', portInfo[receivingNode]))
 		x = 0
 		while receiveAck() and x < 5:
@@ -52,7 +55,7 @@ def send():
 
 
 def sendAck(c):
-		s.sendto("1| Ack".encode(), ('127.0.0.1',portInfo[c[0]]))
+		s.sendto("1| Ack".encode(), ('127.0.0.1', portInfo[c[0]]))
 
 def receiveAck():
 	s.settimeout(1)
@@ -64,6 +67,26 @@ def receiveAck():
 		return False
 	else: 
 		return True
+
+def forward(message):
+	if message[0] == '2':
+		print("Message forwarded to node 2.")
+		message = message[0] + '|' + message[1] + '|' + message[2]
+		s.sendto(message.encode('ascii'), ('127.0.0.1', portInfo["2"]))
+		x = 0
+		while receiveAck() and x < 5:
+			x+=1
+			print("Ack not received, trying again")
+			s.sendto(message.encode(), ('127.0.0.1', portInfo[portInfo["2"]]))
+	if message[0] == '3':
+		print("Message forwarded to node 3.")
+		message = message[0] + '|' + message[1] + '|' + message[2]
+		s.sendto(message.encode('ascii'), ('127.0.0.1', portInfo["3"]))
+		x = 0
+		while receiveAck() and x < 5:
+			x+=1
+			print("Ack not received, trying again")
+			s.sendto(message.encode(), ('127.0.0.1', portInfo["3"]))
 	
 
 recieveThread = threading.Thread(target=receive)
