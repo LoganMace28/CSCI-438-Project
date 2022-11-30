@@ -34,7 +34,11 @@ def receive():
 			print(message[1])
 			sendAck(message)
 			time.sleep(1)
-		break
+		else:	
+			receiveAck(message)
+		
+		
+	
 
 def send():
 	while True:
@@ -42,30 +46,37 @@ def send():
 		receivingNode = input()
 		print("Thanks, now enter your message: ")
 		message = "1| " + input()
+		global length 
+		global received
+		length = str(len(message))
 		s.sendto(message.encode(), ('127.0.0.1', portInfo[receivingNode]))
 		x = 0
-		while receiveAck() and x < 5:
+		time.sleep(2)
+		while received and x < 4:
 			x+=1
 			print("Ack not received, trying again")
 			s.sendto(message.encode(), ('127.0.0.1', portInfo[receivingNode]))
+			if x == 4:
+				print("Message failed to send")
+			time.sleep(1)	
+		received = True
+
 
 
 
 def sendAck(c):
-		s.sendto("1| Ack".encode(), ('127.0.0.1',portInfo[c[0]]))
+		s.sendto("1|Ack".encode(), ('127.0.0.1',portInfo[c[0]]))
 
-def receiveAck():
-	s.settimeout(1)
-	c, addr = s.recvfrom(1024)
-	message = c.decode()
-	message = message.split("|")
-	if (message[1] == "Ack"):
-		print("Received ack")
-		return False
-	else: 
-		return True
-	
+def receiveAck(message):
+		global received
+		received = False
+		print("\033[A", end="")
+		print("\033[" + length + "C", end="")
+		print(u'\u2713')
 
+
+global received 
+received = True
 recieveThread = threading.Thread(target=receive)
 recieveThread.start()
 sendThread = threading.Thread(target=send)

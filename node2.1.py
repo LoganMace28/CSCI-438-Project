@@ -33,7 +33,8 @@ def receive():
 			print(message[1])
 			sendAck(message)
 			time.sleep(1)
-		break
+		
+		
 
 def send():
 	while True:
@@ -49,7 +50,8 @@ def send():
 			s.sendto(message.encode(), ('127.0.0.1', portInfo[receivingNode]))
 
 def sendAck(c):
-		s.sendto("2| Ack".encode(), ('127.0.0.1',portInfo[c[0]]))
+		s.sendto("2|Ack".encode(), ('127.0.0.1',portInfo[c[0]]))
+		print("Ack sent")
 
 def receiveAck():
 	c, addr = s.recvfrom(1024)
