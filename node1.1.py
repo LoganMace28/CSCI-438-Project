@@ -4,7 +4,7 @@ import time
 import graph
 
 
-# create main function
+# create main functions
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 port = 10001
