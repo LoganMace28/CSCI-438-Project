@@ -1,6 +1,7 @@
 import socket
 import threading
 import graph
+import time
 
 
 #create main function
@@ -27,32 +28,59 @@ print ("socket bound to %s" %(port))
 def receive():
 	while True:
 		c, addr = s.recvfrom(1024)
-		message = c.split("|")
-		mes = str(c)
-		message = mes.split("|")
-		print(message[1])
-		RackThread = threading.Thread(target=sendAck, args=(message,))
-		RackThread.start()
+		message = c.decode()
+		message = message.split("|")
+		if message[2] != "Ack":
+			sendAck(message)
+			time.sleep(1)
+			if message[1] == "3":
+				print(message[2])
+			else:
+				forward(message)
+		break
+
 def send():
 	while True:
 		print("To send a message, input which node you want to send to: ")
 		receivingNode = input()
 		print("Thanks, now enter your message: ")
-		message = "3| " + input()
+		message = "3|" + receivingNode + "|" + input()
 		s.sendto(message.encode('ascii'), ('127.0.0.1', portInfo[receivingNode]))
 		SackThread = threading.Thread(target=receiveAck)
 		SackThread.start()
+
 def sendAck(c):
-		s.sendto("3| Ack".encode('ascii'), ('127.0.0.1',portInfo[c[0]]))
+		s.sendto("3| Ack".encode('ascii'), ('127.0.0.1', portInfo[c[0]]))
 
 def receiveAck():
 	while True:
 		c, addr = s.recvfrom(1024)
-		message = c.split("|")
+		message = c.decode()
+		message = message.split("|")
 		if (message[1] == "Ack"):
 			print("Received ack")
 		else: 
 			print("no ack received")
+
+def forward(message):
+	if message[0] == '1':
+		print("Message forwarded to node 1.")
+		message = message[0] + '|' + message[1] + '|' + message[2]
+		s.sendto(message.encode('ascii'), ('127.0.0.1', portInfo["1"]))
+		x = 0
+		while receiveAck() and x < 5:
+			x+=1
+			print("Ack not received, trying again")
+			s.sendto(message.encode(), ('127.0.0.1', portInfo[portInfo["1"]]))
+	if message[0] == '4':
+		print("Message forwarded to node 4.")
+		message = message[0] + '|' + message[1] + '|' + message[2]
+		s.sendto(message.encode('ascii'), ('127.0.0.1', portInfo["4"]))
+		x = 0
+		while receiveAck() and x < 5:
+			x+=1
+			print("Ack not received, trying again")
+			s.sendto(message.encode(), ('127.0.0.1', portInfo["4"]))
 
 recieveThread = threading.Thread(target=receive)
 recieveThread.start()
