@@ -49,16 +49,23 @@ def send():
         print("Thanks, now enter your message: ")
         message = "1|" + receivingNode + "|" + input()
         s.sendto(message.encode(), ('127.0.0.1', portInfo[receivingNode]))
-        x = 0
+        global x 
+        x = 1
         global received
         global length
         length = str(len(message))
-        time.sleep(2)
-        while received and x < 5:
+        time.sleep(1)
+        while received and x < 6:
             x += 1
-            print("Ack not received, trying again")
+            print("Ack not received, trying again...")
             s.sendto(message.encode(), ('127.0.0.1', portInfo[receivingNode]))
-            time.sleep(2)
+            time.sleep(1)
+            if x == 6:
+                print("Ack not received, message failed to send.")
+                print("\033["+ "7" +"A", end="")
+                print("\033[" + length + "C", end="")
+                print(u'\u2717', end="\n\n\n\n\n\n\n")
+                
         received = True
 
 def sendAck(c):
@@ -67,7 +74,7 @@ def sendAck(c):
 def receiveAck(message):
 		global received
 		received = False
-		print("\033[A", end="")
+		print("\033["+ str(x) + "A", end="")
 		print("\033[" + length + "C", end="")
 		print(u'\u2713')
 
