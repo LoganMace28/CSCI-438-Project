@@ -51,6 +51,8 @@ def send():
         s.sendto(message.encode(), ('127.0.0.1', portInfo[receivingNode]))
         x = 0
         global received
+        global length
+        length = str(len(message))
         time.sleep(2)
         while received and x < 5:
             x += 1
@@ -63,9 +65,12 @@ def sendAck(c):
     s.sendto("1|-1|Ack".encode(), ('127.0.0.1', portInfo[c[0]]))
 
 def receiveAck(message):
-    global received
-    received = False
-    print("Received ack")
+		global received
+		received = False
+		print("\033[A", end="")
+		print("\033[" + length + "C", end="")
+		print(u'\u2713')
+
 
 def forward(message):
     global received
