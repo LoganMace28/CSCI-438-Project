@@ -35,9 +35,10 @@ def receive():
             if message[1] == "1":
                 print(message[2])
             else:
-                forward(message)
+                fowardThread = threading.Thread(target=forward, args=message,)
+                fowardThread.start()
         else:
-            receiveAck(message)
+            receiveAck()
 
 def send():
     while True:
@@ -67,41 +68,45 @@ def send():
                 print(u'\u2717', end="\n\n\n\n\n\n\n")
                 
         received = True
-
 def sendAck(c):
     s.sendto("1|-1|Ack".encode(), ('127.0.0.1', portInfo[c[0]]))
 
-def receiveAck(message):
-		global received
-		received = False
-		print("\033["+ str(x) + "A", end="")
-		print("\033[" + length + "C", end="")
-		print(u'\u2713')
+def receiveAck():
+	global received
+	received = False
+	print("\033["+ str(x) + "A", end="")
+	print("\033[" + length + "C", end="")
+	print(u'\u2713')
 
 
 def forward(message):
     global received
     x = 0
-    if message[0] == '2':
+    if message[1] == '2':
+        message[0] = '1'
         print("Message forwarded to node 2.")
         message = message[0] + '|' + message[1] + '|' + message[2]
         s.sendto(message.encode('ascii'), ('127.0.0.1', portInfo["2"]))
-        time.sleep(2)
+        time.sleep(1)
         while received and x < 5:
             x += 1
             print("Ack not received, trying again")
             s.sendto(message.encode(), ('127.0.0.1', portInfo["1"]))
-            time.sleep(2)
-    if message[0] == '3':
+            time.sleep(1)
+        if received == False:
+            sendAck(message)
+    if message[1] == '3':
         print("Message forwarded to node 3.")
         message = message[0] + '|' + message[1] + '|' + message[2]
         s.sendto(message.encode('ascii'), ('127.0.0.1', portInfo[portInfo["3"]]))
-        time.sleep(2)
+        time.sleep(1)
         while received and x < 5:
             x += 1
             print("Ack not received, trying again")
             s.sendto(message.encode(), ('127.0.0.1', portInfo["4"]))
-            time.sleep(2)
+            time.sleep(1)
+        if received == False:
+            sendAck(message)
     received = True
 
 received = True

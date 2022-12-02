@@ -11,7 +11,7 @@ port = 10003
 
 nodeInfo = {"3", "u-02.sm201.iuk.edu", port, "1", "4", "600"}
 
-portInfo = {"1": 10001, "2": 10002, "3": 10003, "4": 10004}
+portInfo = {"1": 10001, "2": 10001, "3": 10003, "4": 10004}
 
 myGraph = graph.Graph(4)
 inputGraph = [[0, 0, 600, 600],
@@ -49,8 +49,11 @@ def send():
 		print("Thanks, now enter your message: ")
 		message = "3|" + receivingNode + "|" + input()
 		s.sendto(message.encode(), ('127.0.0.1', portInfo[receivingNode]))
+		global x
 		x = 0
 		global received
+		global length
+		length = str(len(message))
 		time.sleep(2)
 		while received and x < 5:
 			x+=1
@@ -65,12 +68,14 @@ def sendAck(c):
 def receiveAck(message):
 	global received
 	received = False
-	print("Received ack")
+	print("\033["+ str(x) + "A", end="")
+	print("\033[" + length + "C", end="")
+	print(u'\u2713')
 
 def forward(message):
 	global received
 	x = 0
-	if message[0] == '1':
+	if message[1] == '1':
 		print("Message forwarded to node 1.")
 		message = message[0] + '|' + message[1] + '|' + message[2]
 		s.sendto(message.encode('ascii'), ('127.0.0.1', portInfo["1"]))
@@ -80,7 +85,7 @@ def forward(message):
 			print("Ack not received, trying again")
 			s.sendto(message.encode(), ('127.0.0.1', portInfo[portInfo["1"]]))
 			time.sleep(2)
-	if message[0] == '4':
+	if message[1] == '4':
 		print("Message forwarded to node 4.")
 		message = message[0] + '|' + message[1] + '|' + message[2]
 		s.sendto(message.encode('ascii'), ('127.0.0.1', portInfo["4"]))
