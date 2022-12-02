@@ -49,8 +49,11 @@ def send():
 		print("Thanks, now enter your message: ")
 		message = "2|" + receivingNode + "|" + input()
 		s.sendto(message.encode(), ('127.0.0.1', portInfo[receivingNode]))
+		global x
 		x = 0
 		global received
+		global length
+		length = str(len(message))
 		time.sleep(2)
 		while received and x < 5:
 			x+=1
@@ -61,16 +64,19 @@ def send():
 
 def sendAck(c):
 	s.sendto("2|-1|Ack".encode(), ('127.0.0.1', portInfo[c[0]]))
+	print ("sent ack to " + c[0])
 
 def receiveAck(message):
 	global received
 	received = False
-	print("Received ack")
+	print("\033["+ str(x) + "A", end="")
+	print("\033[" + length + "C", end="")
+	print(u'\u2713')
 
 def forward(message):
 	global received
 	x = 0
-	if message[0] == '1':
+	if message[1] == '1':
 		print("Message forwarded to node 1.")
 		message = message[0] + '|' + message[1] + '|' + message[2]
 		s.sendto(message.encode('ascii'), ('127.0.0.1', portInfo["1"]))
@@ -80,7 +86,9 @@ def forward(message):
 			print("Ack not received, trying again")
 			s.sendto(message.encode(), ('127.0.0.1', portInfo[portInfo["1"]]))
 			time.sleep(2)
-	if message[0] == '4':
+		if received == False:
+			sendAck(message)
+	if message[1] == '4':
 		print("Message forwarded to node 4.")
 		message = message[0] + '|' + message[1] + '|' + message[2]
 		s.sendto(message.encode('ascii'), ('127.0.0.1', portInfo["4"]))
