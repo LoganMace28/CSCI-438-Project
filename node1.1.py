@@ -11,7 +11,7 @@ port = 10001
 
 nodeInfo = {"1", "u-02.sm201.iuk.edu", port, "2", "3", "1000"}
 
-portInfo = {"1": 10001, "2": 10002, "3": 10003, "4": 10004}
+portInfo = {"1": 10001, "2": 10002, "3": 10003, "4": 10002}
 
 myGraph = graph.Graph(4)
 inputGraph = [[0, 1000, 1000, 0],
@@ -31,17 +31,19 @@ def receive():
         message = c.decode()
         message = message.split("|")
         if message[2] != "Ack":
-            sendAck(message)
+            sender = message[0]
+            sendAck(sender)
             if message[1] == "1":
-                print(message[2])
+                print("-> " + message[2] +  " [" + message[0] + "]")
             else:
-                fowardThread = threading.Thread(target=forward, args=message,)
+                fowardThread = threading.Thread(target=forward, args=(message[0], message[1], message[2]))
                 fowardThread.start()
         else:
             receiveAck()
 
 def send():
     while True:
+        global x, received, length, forwarded
         print("To send a message, input which node you want to send to (1-4): ")
         receivingNode = input()
         if not (receivingNode == "1" or receivingNode == "2" or receivingNode == "3" or receivingNode == "4"):
@@ -50,10 +52,8 @@ def send():
         print("Thanks, now enter your message: ")
         message = "1|" + receivingNode + "|" + input()
         s.sendto(message.encode(), ('127.0.0.1', portInfo[receivingNode]))
-        global x 
+        forwarded = False
         x = 1
-        global received
-        global length
         length = str(len(message))
         time.sleep(1)
         while received and x < 6:
@@ -74,41 +74,45 @@ def sendAck(c):
 def receiveAck():
 	global received
 	received = False
-	print("\033["+ str(x) + "A", end="")
-	print("\033[" + length + "C", end="")
-	print(u'\u2713')
+	if forwarded == False:
+		print("\033["+ str(x) + "A", end="")
+		print("\033[" + length + "C", end="")
+		print(u'\u2713')
 
 
-def forward(message):
-    global received
-    x = 0
-    if message[1] == '2':
-        message[0] = '1'
+def forward(message0, message1, message2):
+    global received, x, length, forwarded
+    forwarded = True
+    length = str(len(message2))
+    x = 1
+    message0 ='1,' + message0 
+    if message1 == '2':
         print("Message forwarded to node 2.")
-        message = message[0] + '|' + message[1] + '|' + message[2]
-        s.sendto(message.encode('ascii'), ('127.0.0.1', portInfo["2"]))
+        message = message0 + '|' + message1 + '|' + message2
+        s.sendto(message.encode(), ('127.0.0.1', portInfo[message1]))
         time.sleep(1)
-        while received and x < 5:
+        while received and x < 6:
             x += 1
             print("Ack not received, trying again")
-            s.sendto(message.encode(), ('127.0.0.1', portInfo["1"]))
+            s.sendto(message.encode(), ('127.0.0.1', portInfo[message1]))
             time.sleep(1)
         if received == False:
             sendAck(message)
-    if message[1] == '3':
+    if message1 == '3':
         print("Message forwarded to node 3.")
-        message = message[0] + '|' + message[1] + '|' + message[2]
-        s.sendto(message.encode('ascii'), ('127.0.0.1', portInfo[portInfo["3"]]))
+        message = message0 + '|' + message1 + '|' + message2
+        s.sendto(message.encode(), ('127.0.0.1', portInfo[message1]))
         time.sleep(1)
         while received and x < 5:
             x += 1
             print("Ack not received, trying again")
-            s.sendto(message.encode(), ('127.0.0.1', portInfo["4"]))
+            s.sendto(message.encode(), ('127.0.0.1', portInfo[message1]))
             time.sleep(1)
         if received == False:
             sendAck(message)
     received = True
 
+forwarded = False
 received = True
 recieveThread = threading.Thread(target=receive)
 recieveThread.start()
