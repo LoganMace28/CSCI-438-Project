@@ -110,7 +110,7 @@ def forward(message0, message1, message2):
     if received == False:
         sendAck(message)
     else:
-        print("Message foward failed.")		
+        print("Message forward failed.")		
     received = True
     forwarded = False
 
