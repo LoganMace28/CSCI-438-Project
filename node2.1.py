@@ -32,8 +32,8 @@ def receive():
         message = message.split("|")
         if message[2] != "Ack":
             sender = message[0]
-            sendAck(sender)
             if message[1] == "2":
+                sendAck(sender)
                 print("-> " + message[2] +  " [" + message[0] + "]")
             else:
                 fowardThread = threading.Thread(target=forward, args=(message[0], message[1], message[2]))
@@ -55,12 +55,12 @@ def send():
         forwarded = False
         x = 1
         length = str(len(message))
-        time.sleep(1)
+        time.sleep(2)
         while received and x < 6:
             x += 1
             print("Ack not received, trying again...")
             s.sendto(message.encode(), ('127.0.0.1', portInfo[receivingNode]))
-            time.sleep(1)
+            time.sleep(2)
             if x == 6:
                 print("Ack not received, message failed to send.")
                 print("\033["+ "7" +"A", end="")
@@ -109,7 +109,9 @@ def forward(message0, message1, message2):
             time.sleep(1)
         if received == False:
             sendAck(message)
+    forwarded = False
     received = True
+
 
 forwarded = False
 received = True

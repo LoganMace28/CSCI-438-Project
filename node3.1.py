@@ -32,8 +32,9 @@ def receive():
         message = message.split("|")
         if message[2] != "Ack":
             sender = message[0]
-            sendAck(sender)
+
             if message[1] == "3":
+                sendAck(sender)
                 print("-> " + message[2] +  " [" + message[0] + "]")
             else:
                 fowardThread = threading.Thread(target=forward, args=(message[0], message[1], message[2]))
