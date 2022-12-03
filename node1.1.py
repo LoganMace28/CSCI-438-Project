@@ -85,7 +85,7 @@ def forward(message0, message1, message2):
     forwarded = True
     length = str(len(message2))
     x = 1
-    message0 ='1,' + message0 
+    message0 ='1<-' + message0
     if message1 == '2':
         print("Message forwarded to node 2.")
         message = message0 + '|' + message1 + '|' + message2
