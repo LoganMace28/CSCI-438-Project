@@ -89,6 +89,7 @@ def forward(message0, message1, message2):
     global received, x, length, forwarded
     forwarded = True
     x = 1
+
     message0 ='1<-' + message0 
     if message1 == '2':
         announcement = "Message forwarded to node 2" 
