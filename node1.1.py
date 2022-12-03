@@ -26,6 +26,7 @@ s.bind(('', port))
 print ("socket bound to %s" % (port))
 
 def receive():
+    global forwarded
     while True:
         c, addr = s.recvfrom(1024)
         message = c.decode()
@@ -78,12 +79,12 @@ def sendAck(c):
 
 
 def receiveAck():
-	global received
-	received = False
-	if forwarded == False:
-		print("\033["+ str(x) + "A", end="")
-		print("\033[" + str(length) + "C", end="")
-		print(u'\u2713')
+    global received
+    received = False
+    if forwarded == False:
+        print("\033["+ str(x) + "A", end="")
+        print("\033[" + str(length) + "C", end="")
+        print(u'\u2713')
 
 def forward(message0, message1, message2):
     global received, x, length, forwarded
@@ -97,11 +98,7 @@ def forward(message0, message1, message2):
         message = message0 + '|' + message1 + '|' + message2
         s.sendto(message.encode(), ('127.0.0.1', portInfo[message1]))
         time.sleep(1)
-        while received and x < 6:
-            x += 1
-            print("Ack not received, trying again")
-            s.sendto(message.encode(), ('127.0.0.1', portInfo[message1]))
-            time.sleep(1)
+
     if message1 == '3':
         print("Message forwarded to node 3.")
         message = message0 + '|' + message1 + '|' + message2
@@ -110,9 +107,13 @@ def forward(message0, message1, message2):
     if received == False:
         sendAck(message)
     else:
-        print("Message forward failed.")		
+        print("Message forward failed.")
     received = True
-    forwarded = False
+    time.sleep(1)
+    forwarded = False    		
+
+
+
 
 
 global forwarded, received, x, length
