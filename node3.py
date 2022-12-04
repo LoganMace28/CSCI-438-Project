@@ -1,6 +1,5 @@
 import socket
 import threading
-import graph
 import time
 
 # Functionally the same as all other nodes, just with node 3 info
