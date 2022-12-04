@@ -2,6 +2,8 @@ import socket
 import threading
 import time
 
+# NOTE THAT COMMENTS ARE ONLY IN NODE 1, ALL THE NODES ARE THE SAME OTHER THAN A FEW
+# CHANGES REQUIRED FOR PORT NUMBERS AND WHERE MESSAGES COME FROM.
 
 # make socket
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
