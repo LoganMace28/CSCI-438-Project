@@ -3,7 +3,7 @@ import threading
 import graph
 import time
 
-
+# Functionally the same as all other nodes, just with node 2 info
 # create main functions
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
