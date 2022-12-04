@@ -86,7 +86,7 @@ def receiveAck():
 	received = False
 	if forwarded == False:
 		print("\033["+ str(x) + "A", end="")
-		print("\033[" + length + "C", end="")
+		print("\033[" + str(length) + "C", end="")
 		print(u'\u2713')
 
 def forward(message0, message1, message2, message3):
